@@ -33,7 +33,7 @@ def Account_Manager():
         password = request.form['password']
         typeAccount = request.form['typeAccount']
         save_email(email,password,typeAccount)
-        return redirect(url_for('/Account_Manager'))
+        return redirect(url_for('Account_Manager'))
     accounts=get_accounts()
     return render_template('accountManager.html', accounts=accounts)
 
@@ -71,8 +71,8 @@ def get_tests():
             collation="utf8mb4_general_ci"
         )
         cursor = db.cursor()
-        sql = ("select companyName,countryCode,mobileNumbers.phone,testCounter,brand,testDate,testTime,success from tests inner join mobileNumbers on tests.phoneId=mobileNumbers.id "
-               " inner join company on mobileNumbers.companyId=company.id ORDER BY testDate DESC;")
+        sql = ("select companyName,countryCode,mobileNumbers.phone,testCounter,brand,testDate,testTime,success,descriptionTest from tests inner join mobileNumbers on tests.phoneId=mobileNumbers.id "
+               " inner join company on mobileNumbers.companyId=company.id ORDER BY testDate DESC , testTime Desc  ;")
         cursor.execute(sql)
         tests = cursor.fetchall()
         cursor.close()
@@ -104,8 +104,11 @@ def save_email(email,password,typeAccount):
 
 @app.route('/run-function',methods=['POST'])
 def runHoneypot():
-    print('run HoneyPot')
-    mobileFitstTest.honeyPot()
+    data = request.get_json()
+
+    print('run HoneyPot',data)
+
+    mobileFitstTest.honeyPot(data['test'])
     return jsonify({'result': 'success'})
 
 
