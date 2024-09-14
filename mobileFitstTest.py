@@ -33,6 +33,61 @@ import random
 # from appium.webdriver.support.ui import Select
 # import Json
 x = True
+def getMobileNumber():
+    try:
+        db = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="root",
+            database="honeypot",
+            charset="utf8mb4",
+            collation="utf8mb4_general_ci"
+        )
+        cursor = db.cursor()
+        sql = ("select companyName,countryCode,countryName,telegram,whatsapp,uber,tinder,tiktok,microsoft,"
+               "google,facebook,instagram,imo,phone,status,testCounter,mobileNumbers.id"
+               " from mobileNumbers inner join company on mobileNumbers.companyId=company.id where countryName='Egypt' order by mobilenumbers.testCounter ASC")
+        cursor.execute(sql)
+        tests = cursor.fetchall()
+        cursor.close()
+        db.close()
+        test=tests[0]
+        test={
+            'companyName':test[0],
+            'mobileCountry':test[1],
+            'countryName':test[2],
+            'mobileNumber':test[13],
+            'testCounter':test[14],
+            'phoneId':test[16]
+        }
+        return test
+    except:
+        print('Error')
+
+def clear_app_data2(package_name):
+    # Clear app data
+    os.system(f"adb shell pm clear {package_name}")
+
+def clear_cache(package_name):
+    # Clear app cache
+    os.system(f"adb shell pm clear {package_name} --user 0")
+def clear_app_data(driver,caps):
+    # Terminate the app
+    device_id =  "Samsung Galaxy S20+"
+    device_id =  "emulator-5554"
+
+   #  driver.terminate_app(caps["appium:appPackage"])
+   #
+   #  # Use adb shell command to clear the app's data
+   #  driver.execute_script('mobile: shell', {
+   #      'command': f'pm clear {caps["appium:appPackage"]}'
+   #  })
+   # # Activate (launch) the app again
+   #  driver.activate_app(caps["appium:appPackage"])
+    cmd = f"adb -s {device_id} shell pm clear {caps["appium:appPackage"]}"
+    subprocess.run(cmd, shell=True)
+    # cmd = f"adb -s {device_id} shell su -c 'rm -rf /data/data/{caps["appium:appPackage"]}/cache/*'"
+    # subprocess.run(cmd, shell=True)
 def generate_random_string(length):
     # Get all the ASCII letters in lowercase and uppercase
     letters = string.ascii_letters
@@ -90,6 +145,10 @@ def readGmailApi():
 
 
 def telegramTest(item):
+    package_name='org.thunderdog.challegram'
+    clear_cache(package_name)
+    clear_app_data2(package_name)
+
     mobileNumber=item["mobileNumber"]
     mobileCountry=item["mobileCountry"]
     desired_capabilities = {
@@ -125,9 +184,14 @@ def telegramTest(item):
             now = datetime.now()
             dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
             screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
+            screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
+
             if not os.path.exists(screenshot_dir):
                 os.makedirs(screenshot_dir)
             imgName = os.path.join(screenshot_dir, f'TelegramError-{dt_string}.png')
+
+            item['descriptionTest'] = rf'\TelegramError-{dt_string}.png'
+
             driver.get_screenshot_as_file(imgName)
             print(imgName)
 
@@ -163,6 +227,8 @@ def telegramTest(item):
                     now = datetime.now()
                     dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
                     screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
+                    screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
+
                     if not os.path.exists(screenshot_dir):
                         os.makedirs(screenshot_dir)
                     imgName = os.path.join(screenshot_dir, f'TelegramError-{dt_string}.png')
@@ -217,6 +283,7 @@ def telegramTest(item):
                         if not os.path.exists(screenshot_dir):
                             os.makedirs(screenshot_dir)
                         imgName = os.path.join(screenshot_dir, f'TelegramError-{dt_string}.png')
+                        item['descriptionTest'] = rf'\TelegramError-{dt_string}.png'
 
                         driver.get_screenshot_as_file(imgName)
                         print(imgName)
@@ -234,9 +301,12 @@ def telegramTest(item):
                     now = datetime.now()
                     dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
                     screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
+                    screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
+
                     if not os.path.exists(screenshot_dir):
                         os.makedirs(screenshot_dir)
                     imgName = os.path.join(screenshot_dir, f'TelegramError-{dt_string}.png')
+                    item['descriptionTest'] = rf'\TelegramError-{dt_string}.png'
 
                     driver.get_screenshot_as_file(imgName)
                     item["status"] = 'failed'
@@ -252,9 +322,13 @@ def telegramTest(item):
         now = datetime.now()
         dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
         screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
+        screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
+
         if not os.path.exists(screenshot_dir):
             os.makedirs(screenshot_dir)
         imgName = os.path.join(screenshot_dir, f'TelegramError-{dt_string}.png')
+        item['descriptionTest'] = rf'\TelegramError-{dt_string}.png'
+
 
         driver.get_screenshot_as_file(imgName)
         print(imgName)
@@ -762,6 +836,9 @@ def facebookLoginTest(item):
 
 
 def facebookNewAccountTest(item):
+    package_name = "com.facebook.katana"
+    clear_cache(package_name)
+    clear_app_data2(package_name)
     def scrollDown(x,y):
         window_size = driver.get_window_size()
         start_x = window_size['width'] // 2
@@ -785,7 +862,9 @@ def facebookNewAccountTest(item):
         start_x = window_size['width'] // 2
         start_x=x
         start_y = y
-        end_y = 1000
+        # end_y = 1000
+        end_y = 2000
+
         actions = ActionChains(driver)
         # override as 'touch' pointer action
         # actions.w3c_actions.pointer_action.
@@ -831,6 +910,24 @@ def facebookNewAccountTest(item):
         "appium:automationName": "UiAutomator2",
         "appium:appWaitForLaunch": False
     }
+    # A32
+    desired_capabilities = {
+        "platformName": "Android",
+        "appium:deviceName": "RZ8T717Q86H",
+        "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\facebook-472-0-0-45-79.apk",
+        "appium:automationName": "UiAutomator2",
+
+
+        "appium:appWaitForLaunch": False
+    }
+    # run dual facebook
+    # desired_capabilities= {
+    #     "platformName": "Android",
+    #     "appium:deviceName": "RZ8T717Q86H",
+    #     "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\facebook-472-0-0-45-79-clone.apk",
+    #     "appium:automationName": "UiAutomator2",
+    #     "appium:appWaitForLaunch": False
+    # }
     capabilities_options = UiAutomator2Options().load_capabilities(desired_capabilities)
     driver = webdriver.Remote("http://localhost:4723/wd/hub", options=capabilities_options)
     # try:
@@ -842,13 +939,16 @@ def facebookNewAccountTest(item):
         #---------create new account btn
         try:
             driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Create new account"]/android.view.ViewGroup').click()
+
         except:
             time.sleep(5)
             driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Create new account"]/android.view.ViewGroup').click()
 
         time.sleep(1)
         #--------Get started Btn
-        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Get started"]/android.view.ViewGroup').click()
+        print('Get STARTED')
+
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Get Started"]/android.view.ViewGroup').click()
         time.sleep(1)
         #--------first and last name
         firstName=random.choice(first_names)
@@ -873,20 +973,6 @@ def facebookNewAccountTest(item):
         print(formatted_month)
         print(formatted_day)
         print(formatted_year)
-        element=driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_month}"]')
-        # element=driver.find_element(By.XPATH,value='')
-
-        # element=driver.find_element(By.XPATH,value=f'f//android.widget.EditText[@resource-id="android:id/numberpicker_input"')
-        location = element.location
-        x = location['x']
-        y = location['y']
-        scrollDown(x,y)
-
-        elementDay=driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_day}"]')
-        location=elementDay.location
-        xd = location['x']
-        yd = location['y']
-        scrollDown(xd, yd)
 
         elementYear = driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_year}"]')
         location=elementYear.location
@@ -896,6 +982,19 @@ def facebookNewAccountTest(item):
         while z<4:
             scrollUp(xy, yy)
             z=z+1
+        # element = driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_month}"]')
+        element = driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and contains(@text, "{formatted_month}")]')
+        location = element.location
+        x = location['x']
+        y = location['y']
+        scrollDown(x, y)
+
+        elementDay = driver.find_element(By.XPATH,
+                                         value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_day}"]')
+        location = elementDay.location
+        xd = location['x']
+        yd = location['y']
+        scrollDown(xd, yd)
 
         driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="android:id/button1"]').click()
         # driver.find_element(By.XPATH,value='//android.widget.EditText').clear().send_keys(random.choice(months)+' '+str(random.choice(days))+','+str(random.choice(years)))
@@ -903,7 +1002,7 @@ def facebookNewAccountTest(item):
         time.sleep(3)
 
         #------handle gender
-        gender=['//android.widget.Button[@content-desc="Male"]','//android.view.View[@content-desc="Female"']
+        gender=['//android.widget.Button[@content-desc="Male"]','//android.view.View[@content-desc="Female"]']
         driver.find_element(By.XPATH,value=random.choice(gender)).click()
         driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
         time.sleep(2)
@@ -911,7 +1010,10 @@ def facebookNewAccountTest(item):
         try:
             driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.packageinstaller:id/permission_deny_button"]').click()
         except:
-            print('no phone manage')
+            try:
+                driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.permissioncontroller:id/permission_deny_button"]').click()
+            except:
+                print('no phone manage')
         #-------------eneter mobile phone
         driver.find_element(By.XPATH,value='//android.widget.EditText').send_keys(countryCode+mobileNumber)
         driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
@@ -962,7 +1064,7 @@ def facebookNewAccountTest(item):
             item["time"] = dt_string
             item['testDate'] = now.date()
             item['testTime'] = now.time()
-            item['descriptionTest'] = rf'\whatsappError-{dt_string}.png'
+            item['descriptionTest'] = rf'\facebookError-{dt_string}.png'
             driver.quit()
 
             return False
@@ -981,10 +1083,459 @@ def facebookNewAccountTest(item):
         item["time"] = dt_string
         item['testDate'] = now.date()
         item['testTime'] = now.time()
-        item['descriptionTest'] = rf'\whatsappError-{dt_string}.png'
+        item['descriptionTest'] = rf'\facebookError-{dt_string}.png'
         driver.quit()
 
         return False
+
+
+
+def facebookCallTest():
+    def handleInwertNewNumber(item):
+        print('start new number')
+        # (phoneId, success, brand, testDate, testTime, descriptionTest)
+        # (item['phoneId'], item['success'], item['brand'], item['testDate'], item['testTime'],item['descriptionTest'])
+        # now = datetime.now()
+        # dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+        # item['descriptionTest'] = '-'
+        # item['success'] = True
+        # item['testDate'] = now.date()
+        # item['testTime'] = now.time()
+        # item['brand'] = 'facebook'
+        # item['testCounter']=item['testCounter']+1
+        # insetTest(item)
+        # time.sleep(2)
+
+        # -------------I did not recive my code
+        try:
+            # driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="I didn\'t receive the code"]').click()
+            driver.find_element(By.XPATH,value='//android.widget.Button[contains(@content-desc, "receive the code")]').click()
+            # driver.find_element(By.XPATH,value='//android.widget.Button[contains(@content-desc, "Next)]').click()
+            print('found Next')
+            now = datetime.now()
+            dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+            item['descriptionTest'] = '-'
+            item['success'] = True
+            item['testDate'] = now.date()
+            item['testTime'] = now.time()
+            item['brand'] = 'facebook'
+            item['method'] = 'SMS'
+            item['testCounter'] = item['testCounter'] + 1
+            insetTest(item)
+
+        except:# -----try  handle choice sms option
+
+            # try:
+            print('start handle')
+            # // android.widget.Button[ @ content - desc = "Send code via SMS, Carrier charges may apply"]
+
+            # driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Send code via SMS, Carrier charges may apply"]').click()
+            # driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Send code via SMS, Carrier charges may apply"]').click()
+
+            driver.find_element(By.XPATH,value='//android.widget.Button[contains(@content-desc, "Send code via SMS")]').click()
+
+            driver.find_element(By.XPATH,
+                                value='//android.widget.Button[@content-desc="Continue"]/android.view.ViewGroup').click()
+            time.sleep(5)
+            # -----------------------------------
+            now = datetime.now()
+            dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+            item['descriptionTest'] = '-'
+            item['success'] = True
+            item['testDate'] = now.date()
+            item['testTime'] = now.time()
+            item['brand'] = 'facebook'
+            item['method'] = 'SMS'
+            item['testCounter'] = item['testCounter'] + 1
+            insetTest(item)
+            # ---------------------------------------------
+            driver.find_element(By.XPATH,
+                                value='//android.widget.Button[@content-desc="I didn\'t receive the code"]').click()
+        # except:
+        #     print('no confirmation code page ')
+
+        try:
+            driver.find_element(By.XPATH,
+                                value='//android.view.ViewGroup[@content-desc="Change mobile number"]').click()
+
+        except:
+            print('no option change mobile number')
+        print('handle')
+        item = getMobileNumber()
+        countryCode = item["mobileCountry"]
+        mobileNumber = item["mobileNumber"]
+        driver.find_element(By.XPATH, value='//android.widget.EditText').send_keys(countryCode + mobileNumber)
+        driver.find_element(By.XPATH,
+                            value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+        time.sleep(2)
+        driver.find_element(By.XPATH, value='//android.widget.Button[@content-desc="Confirm via phone call"]').click()
+        driver.find_element(By.XPATH, value='//android.widget.Button[@content-desc="Continue"]').click()
+        time.sleep(2)
+        # -------check result
+        try:
+            now = datetime.now()
+
+            driver.find_element(By.XPATH, value='//android.view.View[@content-desc="Calling your mobile number..."]')
+            print('success')
+            now = datetime.now()
+            dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+            item['descriptionTest'] = '-'
+            item['success'] = True
+            item['testDate'] = now.date()
+            item['testTime'] = now.time()
+            item['brand'] = 'facebook'
+            item['testCounter'] = item['testCounter'] + 1
+            item['method']='Call'
+            insetTest(item)
+            # time.sleep(2)
+            time.sleep(35)
+            print('half')
+            try:
+                driver.find_element(By.XPATH,
+                                    value='//android.view.View[@content-desc="Calling your mobile number..."]')
+                time.sleep(35)
+            except:
+                print('waiting end')
+                # time.sleep(35)
+
+            # driver.quit()
+            return True
+            # ---------------insert test result and update test counter
+            # handleInwertNewNumber(item)
+        except:
+            print('Error in new mobile number function')
+            return False
+
+    package_name = "com.facebook.katana"
+    clear_cache(package_name)
+    clear_app_data2(package_name)
+    item=getMobileNumber()
+    print(item)
+    def scrollDown(x,y):
+        window_size = driver.get_window_size()
+        start_x = window_size['width'] // 2
+        start_x=x
+        start_y = y
+        end_y = window_size['height'] // 5
+        actions = ActionChains(driver)
+        # override as 'touch' pointer action
+        # actions.w3c_actions.pointer_action.
+        actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+        actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
+        actions.w3c_actions.pointer_action.click_and_hold()
+        # actions.w3c_actions.pointer_action.pause(2)
+        actions.w3c_actions.pointer_action.move_to_location(start_x, end_y)
+        actions.w3c_actions.pointer_action.release()
+        actions.perform()
+        print('action')
+        # time.sleep(2)
+    def scrollUp(x,y):
+        window_size = driver.get_window_size()
+        start_x = window_size['width'] // 2
+        start_x=x
+        start_y = y
+        # end_y = 1000
+        end_y = 2000
+
+        actions = ActionChains(driver)
+        # override as 'touch' pointer action
+        # actions.w3c_actions.pointer_action.
+        actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+        actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
+        actions.w3c_actions.pointer_action.click_and_hold()
+        # actions.w3c_actions.pointer_action.pause(2)
+        actions.w3c_actions.pointer_action.move_to_location(start_x, end_y)
+        actions.w3c_actions.pointer_action.release()
+        actions.perform()
+        print('action')
+        # time.sleep(2)
+
+
+    countryCode= item["mobileCountry"]
+    mobileNumber=item["mobileNumber"]
+    first_names = [
+        "John", "Mary", "Michael", "Sarah", "David", "Emily",
+        "James", "Emma", "Robert", "Olivia", "William", "Ava",
+        "Joseph", "Sophia", "Daniel", "Isabella", "Thomas", "Mia",
+        "Charles", "Amelia"
+    ]
+    last_names = [
+        "Smith", "Johnson", "Brown", "Williams", "Jones",
+        "Garcia", "Miller", "Davis", "Rodriguez", "Martinez",
+        "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
+        "Thomas", "Taylor", "Moore", "Jackson", "Martin"
+    ]
+    days = list(range(1, 29))
+    months = [
+        "January", "February", "March", "April",
+        "May", "June", "July", "August",
+        "September", "October", "November", "December"
+    ]
+
+    # List of years from 1970 to 2005
+    years = list(range(1970, 2006))
+
+    desired_capabilities = {
+        "platformName": "Android",
+        "appium:deviceName": "Samsung Galaxy S20+",
+        "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\facebook-472-0-0-45-79.apk",
+        "appium:automationName": "UiAutomator2",
+        "appium:appWaitForLaunch": False
+    }
+    # A32
+    desired_capabilities = {
+        "platformName": "Android",
+        "appium:deviceName": "RZ8T717Q86H",
+        "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\facebook-472-0-0-45-79.apk",
+        "appium:automationName": "UiAutomator2",
+
+
+        "appium:appWaitForLaunch": False
+    }
+    # run dual facebook
+    # desired_capabilities= {
+    #     "platformName": "Android",
+    #     "appium:deviceName": "RZ8T717Q86H",
+    #     "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\facebook-472-0-0-45-79-clone.apk",
+    #     "appium:automationName": "UiAutomator2",
+    #     "appium:appWaitForLaunch": False
+    # }
+    capabilities_options = UiAutomator2Options().load_capabilities(desired_capabilities)
+    driver = webdriver.Remote("http://localhost:4723/wd/hub", options=capabilities_options)
+    # try:
+    driver.implicitly_wait(30)
+    time.sleep(30)
+    print('start')
+    time.sleep(5)
+    try:
+        #---------create new account btn
+        try:
+            driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Create new account"]/android.view.ViewGroup').click()
+
+        except:
+            time.sleep(5)
+            driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Create new account"]/android.view.ViewGroup').click()
+
+        time.sleep(1)
+        #--------Get started Btn
+        print('Get STARTED')
+        try:
+            driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Get Started"]/android.view.ViewGroup').click()
+            time.sleep(1)
+        except:
+            driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Get started"]/android.view.ViewGroup').click()
+            time.sleep(1)
+
+        #------------handle deny phone manage
+        try:
+            driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.packageinstaller:id/permission_deny_button"]').click()
+        except:
+            try:
+                driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.permissioncontroller:id/permission_allow_button"]').click()
+            except:
+                print('no phone manage')
+
+        #--------first and last name
+        firstName=random.choice(first_names)
+        driver.find_element(By.XPATH, value='//androidx.recyclerview.widget.RecyclerView/android.view.ViewGroup[2]/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup/android.view.ViewGroup/android.widget.EditText').send_keys(firstName)
+        lastName=random.choice(last_names)
+        driver.find_element(By.XPATH, value='//androidx.recyclerview.widget.RecyclerView/android.view.ViewGroup[2]/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.view.ViewGroup/android.view.ViewGroup/android.widget.EditText').send_keys(lastName)
+        #-------Next btn
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+        time.sleep(2)
+        #-------handle birthday"August 5,2024"
+        current_date = datetime.now()
+
+        # Format the month as abbreviated name (e.g., Aug)
+        formatted_month = current_date.strftime("%b")
+        formatted_day = current_date.strftime("%d")  # Day of the month as zero-padded decimal (01, 02, ..., 31)
+        # formatted_day_without_zero_padding = current_date.strftime("%-d")  # Day of the month without zero padding (1, 2, ..., 31) (This works on Unix-like systems)
+
+        # Format the year
+        formatted_year = current_date.strftime("%Y")  # Year with century as a decimal number (2024)
+        # formatted_year_short = current_date.strftime("%y")  # Year without century as a zero-padded decimal number (24)
+
+        print(formatted_month)
+        print(formatted_day)
+        print(formatted_year)
+
+        elementYear = driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_year}"]')
+        location=elementYear.location
+        xy = location['x']
+        yy = location['y']
+        z=0
+        while z<4:
+            scrollUp(xy, yy)
+            z=z+1
+        # element = driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_month}"]')
+        element = driver.find_element(By.XPATH,value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and contains(@text, "{formatted_month}")]')
+        location = element.location
+        x = location['x']
+        y = location['y']
+        scrollDown(x, y)
+
+        elementDay = driver.find_element(By.XPATH,
+                                         value=f'//android.widget.EditText[@resource-id="android:id/numberpicker_input" and @text="{formatted_day}"]')
+        location = elementDay.location
+        xd = location['x']
+        yd = location['y']
+        scrollDown(xd, yd)
+
+        driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="android:id/button1"]').click()
+        # driver.find_element(By.XPATH,value='//android.widget.EditText').clear().send_keys(random.choice(months)+' '+str(random.choice(days))+','+str(random.choice(years)))
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+        time.sleep(3)
+
+        #------handle gender
+        gender=['//android.widget.Button[@content-desc="Male"]','//android.view.View[@content-desc="Female"]']
+        driver.find_element(By.XPATH,value=random.choice(gender)).click()
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+        time.sleep(2)
+        #------------handle deny phone manage
+        try:
+            driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.packageinstaller:id/permission_deny_button"]').click()
+        except:
+            try:
+                driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.permissioncontroller:id/permission_allow_button"]').click()
+            except:
+                print('no phone manage')
+        #-------------eneter mobile phone
+        driver.find_element(By.XPATH,value='//android.widget.EditText').send_keys(countryCode+mobileNumber)
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+        time.sleep(2)
+        #-------handle password
+        password='123A45#'+firstName[1:3]+'@67Y89'
+        driver.find_element(By.XPATH,value='//android.widget.EditText').send_keys(password)
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+        time.sleep(2)
+        #-------not save login info
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Not now"]').click()
+        time.sleep(2)
+        #-------agree poilicies
+        driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="I agree"]/android.view.ViewGroup').click()
+        time.sleep(10)
+        #---------ask vertification type
+        try:
+            try:#-----call
+                driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Confirm via phone call"]').click()
+                driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Continue"]/android.view.ViewGroup').click()
+                time.sleep(5)
+            except:#----sms
+                try:
+                    driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Send code via SMS, Carrier charges may apply"]').click()
+                    driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Continue"]/android.view.ViewGroup').click()
+                    time.sleep(5)
+                    handleInwertNewNumber(item)
+
+                except:#----direct to the sms code
+                    driver.find_element(By.XPATH, value='//android.view.View[@content-desc="Confirmation code"]')
+                    print('direct to sms code')
+
+
+                    handleInwertNewNumber(item)
+
+
+
+            # ------allow facebook to  call:
+            try:
+                driver.find_element(By.XPATH, value='//android.widget.Button[@content-desc="Continue"]').click()
+                time.sleep(2)
+            except:
+                print('no Confirm Page')
+            # -----allow phone access logs and calls
+            try:
+                driver.find_element(By.XPATH,
+                                    value='//android.widget.Button[@resource-id="com.android.permissioncontroller:id/permission_allow_button"]').click()
+            except:
+                print('not ask for call logs')
+            try:
+                driver.find_element(By.XPATH,
+                                    value='//android.widget.Button[@resource-id="com.android.permissioncontroller:id/permission_allow_button"]').click()
+
+            except:
+                print('not ask for calls')
+
+        except:
+            print('not ask')
+
+
+        #-------check result
+        try:
+            now = datetime.now()
+
+            driver.find_element(By.XPATH,value='//android.view.View[@content-desc="Calling your mobile number..."]')
+            print('success')
+            now = datetime.now()
+            dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+            item['descriptionTest'] = '-'
+            item['success'] = True
+            item['testDate'] = now.date()
+            item['testTime'] = now.time()
+            item['brand'] = 'facebook'
+            item['method']='Call'
+            item['testCounter'] = item['testCounter'] + 1
+            insetTest(item)
+            # time.sleep(2)
+            time.sleep(35)
+            print('half')
+            try:
+                driver.find_element(By.XPATH,value='//android.view.View[@content-desc="Calling your mobile number..."]')
+                time.sleep(35)
+            except:
+                print('waiting end')
+                # time.sleep(35)
+
+            # driver.quit()
+            # return True
+            # ---------------insert test result and update test counter
+            x=True
+            while (x==True):
+                x=handleInwertNewNumber(item)
+
+
+
+        except:
+            x=handleInwertNewNumber(item)
+            print('failed')
+            now = datetime.now()
+            dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+            screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
+            screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
+            if not os.path.exists(screenshot_dir):
+                os.makedirs(screenshot_dir)
+            imgName = os.path.join(screenshot_dir, f'facebookError-{dt_string}.png')
+
+            driver.get_screenshot_as_file(imgName)
+            item["status"] = 'failed'
+            item["time"] = dt_string
+            item['testDate'] = now.date()
+            item['testTime'] = now.time()
+            item['descriptionTest'] = rf'\facebookError-{dt_string}.png'
+            # driver.quit()
+
+            return False
+        # insetTest(item)
+
+    except:
+        print('Error')
+        now = datetime.now()
+        dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+        screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
+        screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
+        if not os.path.exists(screenshot_dir):
+            os.makedirs(screenshot_dir)
+        imgName = os.path.join(screenshot_dir, f'facebookError-{dt_string}.png')
+
+        driver.get_screenshot_as_file(imgName)
+        item["status"] = 'failed'
+        item["time"] = dt_string
+        item['testDate'] = now.date()
+        item['testTime'] = now.time()
+        item['descriptionTest'] = rf'\facebookError-{dt_string}.png'
+        # driver.quit()
+
+        return False
+    insetTest(item)
 
 
 def instagramCretateAccount(item):
@@ -996,7 +1547,8 @@ def instagramCretateAccount(item):
         "appium:deviceName": "Samsung Galaxy S20+",
         "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\instagram-340-0-0-22-109.apk",
         "appium:automationName": "UiAutomator2",
-        "appium:appWaitForLaunch": False
+        "appium:appWaitForLaunch": False,
+        "appium: adbExecTimeout": 60000
     }
     capabilities_options = UiAutomator2Options().load_capabilities(desired_capabilities)
     driver = webdriver.Remote("http://localhost:4723/wd/hub", options=capabilities_options)
@@ -1042,24 +1594,75 @@ def instagramCretateAccount(item):
 
             return True
         except:
-            print('failed')
-            now = datetime.now()
-            dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
-            screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
-            screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
-            if not os.path.exists(screenshot_dir):
-                os.makedirs(screenshot_dir)
-            imgName = os.path.join(screenshot_dir, f'instagramError-{dt_string}.png')
+            # --------------
+            try:
+                driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Confirm via phone call"]').click()
+                driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+                time.sleep(2)
+                try:
+                    driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]').click()
+                    time.sleep(2)
+                except:
+                    print('no next btn2')
+                #-----allow instagram to manage phone
+                try:
+                    driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.packageinstaller:id/permission_allow_button"]').click()
+                    time.sleep(0.5)
+                    driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.android.packageinstaller:id/permission_allow_button"]').click()
+                    time.sleep(40)
+                except:
+                    print('not ask for phone manage')
 
-            driver.get_screenshot_as_file(imgName)
-            item["status"] = 'failed'
-            item["time"] = dt_string
-            item['testDate'] = now.date()
-            item['testTime'] = now.time()
-            item['descriptionTest'] = rf'\whatsappError-{dt_string}.png'
-            driver.quit()
+                #----------return to confirm through sms
+                try:
+                    driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Send code via SMS, Carrier charges may apply"]').click()
+                    driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Next"]/android.view.ViewGroup').click()
+                    time.sleep(10)
+                    # ----------result test
 
-            return False
+                    driver.find_element(By.XPATH,
+                                        value='//android.view.View[@content-desc="Enter the confirmation code"]')
+                    print('success')
+                    now = datetime.now()
+                    item['testDate'] = now.date()
+                    item['testTime'] = now.time()
+                    item['descriptionTest'] = '--'
+
+                    driver.quit()
+
+                    return True
+                except:#-----direct to the test result
+                    driver.find_element(By.XPATH,
+                                        value='//android.view.View[@content-desc="Enter the confirmation code"]')
+                    print('success')
+                    now = datetime.now()
+                    item['testDate'] = now.date()
+                    item['testTime'] = now.time()
+                    item['descriptionTest'] = '--'
+
+                    driver.quit()
+                    return True
+            except:
+
+            # --------------
+                print('failed')
+                now = datetime.now()
+                dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+                screenshot_dir = r'C:\Users\iyad_\OneDrive\Desktop\HoneyPot-pythonResults'
+                screenshot_dir = r'C:\Users\iyad_\PycharmProjects\pythonProject\static\honeyPotImages'
+                if not os.path.exists(screenshot_dir):
+                    os.makedirs(screenshot_dir)
+                imgName = os.path.join(screenshot_dir, f'instagramError-{dt_string}.png')
+
+                driver.get_screenshot_as_file(imgName)
+                item["status"] = 'failed'
+                item["time"] = dt_string
+                item['testDate'] = now.date()
+                item['testTime'] = now.time()
+                item['descriptionTest'] = rf'\instagramError-{dt_string}.png'
+                driver.quit()
+
+                return False
     except:
         print('error')
         now = datetime.now()
@@ -1075,7 +1678,7 @@ def instagramCretateAccount(item):
         item["time"] = dt_string
         item['testDate'] = now.date()
         item['testTime'] = now.time()
-        item['descriptionTest'] = rf'\whatsappError-{dt_string}.png'
+        item['descriptionTest'] = rf'\instagramError-{dt_string}.png'
         driver.quit()
         return False
 
@@ -1090,8 +1693,31 @@ def whatsAppBuisnessTest(item):
   "appium:deviceName": "Samsung Galaxy S20+",
   "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\whatsapp-business-2-24-14-76.apk",
   "appium:automationName": "UiAutomator2",
+  "appium:appPackage": "com.whatsapp.w4b",
+
   "appium:appWaitForLaunch": False
 
+}
+    # S20
+    desired_capabilities = {
+        "platformName": "Android",
+        "appium:deviceName": "emulator:5556",
+        "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\whatsapp-business-2-24-14-76.apk",
+        "appium:automationName": "UiAutomator2",
+        "appium:appPackage": "com.whatsapp.w4b",
+
+        "appium:appWaitForLaunch": False
+
+    }
+    # A32
+    desired_capabilities={
+  "platformName": "Android",
+  "appium:deviceName": "RZ8T717Q86H",
+  "appium:app":r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\whatsapp-business-2-24-14-76.apk",
+  "appium:automationName": "UiAutomator2",
+  "appium:appPackage": "com.whatsapp.w4b",
+
+  "appium:appWaitForLaunch": False
 }
     capabilities_options = UiAutomator2Options().load_capabilities(desired_capabilities)
     driver = webdriver.Remote("http://localhost:4723/wd/hub", options=capabilities_options)
@@ -1117,7 +1743,7 @@ def whatsAppBuisnessTest(item):
             driver.find_element(By.XPATH,value='//android.widget.Button[@text="SEND SMS"]').click()
         except:
             print('no popup vertify another way')
-        time.sleep(5)
+        time.sleep(10)
 
         #-------reult test
         try:
@@ -1138,6 +1764,8 @@ def whatsAppBuisnessTest(item):
             item['testTime'] = now.time()
             item['descriptionTest']=rf'whatsappError-{dt_string}.png'
             print(item['descriptionTest'])
+
+            clear_app_data(driver,desired_capabilities)
             driver.quit()
 
         except:
@@ -1159,6 +1787,8 @@ def whatsAppBuisnessTest(item):
                 item['testTime'] = now.time()
                 item['descriptionTest'] =rf'\whatsappError-{dt_string}.png'
                 print(item['descriptionTest'])
+                clear_app_data(driver, desired_capabilities)
+
                 driver.quit()
 
             except:
@@ -1168,7 +1798,10 @@ def whatsAppBuisnessTest(item):
                 item['testDate'] = now.date()
                 item['testTime'] = now.time()
                 item['descriptionTest'] ='--'
+                clear_app_data(driver, desired_capabilities)
+
                 driver.quit()
+                return True
 
 
     except:
@@ -1188,7 +1821,84 @@ def whatsAppBuisnessTest(item):
 
         driver.get_screenshot_as_file(imgName)
         print(imgName)
+        clear_app_data(driver, desired_capabilities)
+
         driver.quit()
+
+
+def tikTokTest(item):
+    mobileNumber = item["mobileNumber"]
+    mobileCountry = item["mobileCountry"]
+    countryName=item["countryName"]
+    desired_capabilities = {
+        "platformName": "Android",
+        "appium:deviceName": "Samsung Galaxy S20+",
+        "appium:app": r"C:\\Users\\iyad_\\Downloads\\HoneyPot apk\\tiktok-35-8-3.apk",
+        "appium:automationName": "UiAutomator2",
+        "appium:appWaitForLaunch": False
+
+    }
+    capabilities_options = UiAutomator2Options().load_capabilities(desired_capabilities)
+    driver = webdriver.Remote("http://localhost:4723/wd/hub", options=capabilities_options)
+    driver.implicitly_wait(30)
+    # try:
+    #----- choice the content and press on next btn
+    driver.find_element(By.XPATH,value='(//android.view.ViewGroup[@resource-id="com.zhiliaoapp.musically:id/g_x"])[1]').click()
+    driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.zhiliaoapp.musically:id/bb5"]').click()
+    time.sleep(3)
+    #-----start watching Btn
+    try:
+        driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.zhiliaoapp.musically:id/n2j"]').click()
+        time.sleep(2)
+    except:
+        print('not page')
+    #-----scroll up
+    def scrollDown():
+        window_size = driver.get_window_size()
+        start_x = window_size['width'] // 2
+        # start_x = x
+        # start_y = y
+        start_y = window_size['height'] * 4 // 5
+
+        end_y = window_size['height'] // 5
+        actions = ActionChains(driver)
+        # override as 'touch' pointer action
+        # actions.w3c_actions.pointer_action.
+        actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+        actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
+        actions.w3c_actions.pointer_action.click_and_hold()
+        # actions.w3c_actions.pointer_action.pause(2)
+        actions.w3c_actions.pointer_action.move_to_location(start_x, end_y)
+        actions.w3c_actions.pointer_action.release()
+        actions.perform()
+        print('action')
+        # time.sleep(2)
+
+    scrollDown()
+    #---click on profile
+    driver.find_element(By.XPATH,value='//android.widget.FrameLayout[@content-desc="Profile"]').click()
+    time.sleep(2)
+    #---click on Home
+    driver.find_element(By.XPATH, value='//android.widget.FrameLayout[@content-desc="Home"]').click()
+    time.sleep(2)
+    #----use phone or mobile
+    driver.find_element(By.XPATH,value='//android.widget.Button[@content-desc="Use phone or email"]').click()
+    time.sleep(3)
+    #-----country code
+    driver.find_element(By.XPATH,value='//android.widget.LinearLayout[@resource-id="com.zhiliaoapp.musically:id/jrg"]').click()
+    time.sleep(1)
+    driver.find_element(By.XPATH,value='//android.widget.EditText[@resource-id="com.zhiliaoapp.musically:id/lwd"]').send_keys(countryName)
+    driver.find_element(By.XPATH,value='//android.widget.Button[@resource-id="com.zhiliaoapp.musically:id/m05"]').click()
+    time.sleep(1)
+    driver.find_element(By.XPATH,value='//android.widget.LinearLayout[@resource-id="com.zhiliaoapp.musically:id/coa"]/android.widget.RelativeLayout').click()
+    time.sleep(1)
+    #------------input mobile number
+    driver.find_element(By.XPATH,value='//android.widget.EditText[@resource-id="com.zhiliaoapp.musically:id/g84"]').send_keys(mobileNumber)
+    driver.find_element(By.XPATH,value='//android.widget.TextView[@resource-id="com.zhiliaoapp.musically:id/hzw"]').click()
+    time.sleep(3)
+    #----------
+    
+
 
 
 
@@ -1290,6 +2000,7 @@ def get_mobileNumbers():
         return []
 
 def insetTest(item):
+    print(item)
     try:
         db = mysql.connector.connect(
             host="localhost",
@@ -1300,8 +2011,12 @@ def insetTest(item):
             collation="utf8mb4_general_ci"
         )
         cursor = db.cursor()
-        sql = "INSERT INTO tests (phoneId, success, brand, testDate, testTime, descriptionTest) VALUES (%s, %s, %s, %s, %s, %s)"
-        values = (item['phoneId'], item['success'], item['brand'], item['testDate'], item['testTime'], item['descriptionTest'])
+        if 'method' in item.keys():
+            sql = "INSERT INTO tests (phoneId, success, brand, testDate, testTime, descriptionTest,method) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            values = (item['phoneId'], item['success'], item['brand'], item['testDate'], item['testTime'], item['descriptionTest'], item['method'])
+        else:
+            sql = "INSERT INTO tests (phoneId, success, brand, testDate, testTime, descriptionTest) VALUES (%s, %s, %s, %s, %s, %s)"
+            values = (item['phoneId'], item['success'], item['brand'], item['testDate'], item['testTime'], item['descriptionTest'])
         cursor.execute(sql,values)
         cursor.execute(f"UPDATE honeypot.mobilenumbers SET testCounter = {item['testCounter']} WHERE mobileNumbers.id={item['phoneId']};")
         # tests = cursor.fetchall()
@@ -1458,6 +2173,10 @@ def honeyPot(brand):
                 if item["facebook"]==1:
                     facebookResult=facebookNewAccountTest(item)
                     item["brand"]="facebook"
+                    try:
+                        item["testCounter"] = item["testCounter"] + 1
+                    except:
+                        item["testCounter"] = 1
                     if facebookResult:
                         print("success facebbok")
                         item["success"]=True
@@ -1490,6 +2209,10 @@ def honeyPot(brand):
                 # for item in dataList[company]:
                     if item["instagram"] == 1:
                         instagramResult = instagramCretateAccount(item)
+                        try:
+                            item["testCounter"] = item["testCounter"] + 1
+                        except:
+                            item["testCounter"] = 1
                         item["brand"] = "instagram"
                         if instagramResult:
                             print("success instagram")
@@ -1522,6 +2245,10 @@ def honeyPot(brand):
                 # for item in dataList[company]:
                 if item["microsoft"] == 1:
                     microsoftResult = microsoftTest(item)
+                    try:
+                        item["testCounter"] = item["testCounter"] + 1
+                    except:
+                        item["testCounter"] = 1
                     item["brand"] = "microsoft"
                     if microsoftResult:
                         print("success microsoft")
@@ -1566,3 +2293,15 @@ def honeyPot(brand):
 #     # facebookNewAccountTest(item)
 #     instagramCretateAccount(item)
 # whatsAppBuisnessTest({"mobileCountry":'20',"mobileNumber":'1228987350'})
+# facebookCallTest()
+# item=getMobileNumber()
+# item={'companyName': 'Orange_EG', 'mobileCountry': '20', 'countryName': 'Egypt', 'mobileNumber': '1279805474', 'testCounter': 1, 'phoneId': 0}
+# now = datetime.now()
+# dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+# item['descriptionTest'] = '-'
+# item['success'] = True
+# item['testDate'] = now.date()
+# item['testTime'] = now.time()
+# item['testCounter']=5
+# item['brand'] = 'facebook'
+# insetTest(item)
